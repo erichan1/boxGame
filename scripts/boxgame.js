@@ -11,7 +11,7 @@ function startGame() {
     myBox = new component(30,30,"red",10,120);
 }
 
-//creates the gamearea, which is a canvas. Unsure when the second line gets called, because startGame() directly accesses start:function.
+//creates the gamearea, which is a canvas.
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
@@ -19,7 +19,8 @@ var myGameArea = {
         this.canvas.height = 270;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval=setInterval(updateGameArea, 20); //it used to be this.interval = (the stuff there). kinda interesting that it can be both. 
+        this.interval=setInterval(updateGameArea, 20); 
+        
         window.addEventListener('keydown',function(e) {
             myGameArea.keys= (myGameArea.keys || [] );
             myGameArea.keys[e.keyCode] = true; 
@@ -39,34 +40,40 @@ function component(height,width,color,x,y) {
     this.height=height;
     this.x=x;
     this.y=y;
+    this.speedX=0;
+    this.speedY=0;
     this.update = function() {
         ctx = myGameArea.context;
         ctx.fillStyle=color;
         ctx.fillRect(this.x,this.y,this.width,this.height);
     }  
-    this.speedX=0;
-    this.speedY=0;
     this.newPos = function() {
         this.x+=this.speedX;
         this.y+=this.speedY;
     }
+    this.setSpeedY = function(speedY) {
+        this.speedY = speedY;
+    }
+    this.setSpeedX = function(speedX) {
+        this.speedX = speedX;
+    }  
 }
 //controlled by a bunch of different things. in html, can update game area thru buttons. here, using keyboard. can also use touch screen and mouse. 
 function updateGameArea() {
     myGameArea.clear();
-    //myBox.speedX=0;
-    //myBox.speedY=0;
+    myBox.setSpeedX(0);
+    myBox.setSpeedY(0);
     if(myGameArea.keys && myGameArea.keys[39]) {
-        myBox.moveRight(); //if you want this to be constant rate instead of accel make speedX=1
+        myBox.setSpeedX(1); //makes box go right
     }
     if(myGameArea.keys && myGameArea.keys[37]) {
-        myBox.moveLeft();
+        myBox.setSpeedX(-1); //makes box go left
     }
     if(myGameArea.keys && myGameArea.keys[38]) {
-        myBox.moveUp();
+        myBox.setSpeedY(-1); //makes box go up
     }
     if(myGameArea.keys && myGameArea.keys[40]) {
-        myBox.moveDown();
+        myBox.setSpeedY(1); //makes box go down
     }
     /*
     if(myBox.x==myGameArea.width || myBox.y==myGameArea.length){
@@ -84,6 +91,8 @@ function stopMove() {
     this.speedY = 0;
 }
 
+
+
 //accelerates box up. sets the global variable accelUpdate to set an interval that calls moveUp every second. this increases speedY by -1. 
 function accelUp() {
     accelUpdate=setInterval(moveUp,1000);
@@ -96,23 +105,6 @@ function accelLeft() {
 }
 function accelRight() {
     accelUpdate=setInterval(moveRight,1000);
-}
-
-//increments speed, not set it. 
-function moveUp() {
-    this.speedY += -1;
-}
-
-function moveDown() {
-    this.speedY += 1;
-}
-
-function moveLeft() {
-    this.speedX += -1;
-}
-
-function moveRight() {
-    this.speedX += 1;
 }
 
 function print() {
