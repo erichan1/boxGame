@@ -74,20 +74,40 @@ function component(height,width,color,x,y) {
 //controlled by a bunch of different things. in html, can update game area thru buttons. here, using keyboard. can also use touch screen and mouse. 
 function updateGameArea() {
     myGameArea.clear();
-    myBox.setSpeedX(0);
-    myBox.setSpeedY(0);
-    if(myGameArea.keys && myGameArea.keys[39] && (myBox.x+myBox.width)!=myGameArea.canvas.width) {
-        myBox.setSpeedX(1); //makes box go right
+    //myBox.setSpeedX(0);
+    //myBox.setSpeedY(0);
+    
+    if(myGameArea.keys && myGameArea.keys[39]) {
+            myBox.setAccelX(4,50);
+          //myBox.setSpeedX(4); //makes box go right   
     }
-    if(myGameArea.keys && myGameArea.keys[37] && myBox.x!=0) {
-        myBox.setSpeedX(-1); //makes box go left
+    if(myGameArea.keys && myGameArea.keys[37]) {
+            myBox.setSpeedX(-4); //makes box go left
     }
-    if(myGameArea.keys && myGameArea.keys[38] && myBox.y!=0) {
-        myBox.setSpeedY(-1); //makes box go up
+    if(myGameArea.keys && myGameArea.keys[38]) {
+            myBox.setSpeedY(-4); //makes box go up
     }
-    if(myGameArea.keys && myGameArea.keys[40] && (myBox.y+myBox.height)!=myGameArea.canvas.height) {
-        myBox.setSpeedY(1); //makes box go down
+    if(myGameArea.keys && myGameArea.keys[40]) {
+            myBox.setSpeedY(4); //makes box go down.
     }
+    
+    if((myBox.x+myBox.width)>=myGameArea.canvas.width && myBox.speedX>0) { 
+        myBox.setSpeedX(0); //stops box at right side
+    }
+    if(myBox.x<=0 && myBox.speedX<0) {
+        myBox.setSpeedX(0); //stops box at left side
+    }
+    if(myBox.y<=0 && myBox.speedY<0){
+        myBox.setSpeedY(0); //stops box at top side
+    }  
+    if((myBox.y+myBox.height)>=myGameArea.canvas.height && myBox.speedY>0){
+        myBox.setSpeedY(0); //stops box at bottom side
+        
+    }
+
+        
+    
+    
     /*
     if(myBox.x==myGameArea.width || myBox.y==myGameArea.length || myBox.x==0 || myBox.y==0){
        myBox.setSpeedZero();
@@ -96,7 +116,6 @@ function updateGameArea() {
     myBox.newPos();
     myBox.update();
 }
-
 
 function print() {
     return document.body.childNodes.length;
