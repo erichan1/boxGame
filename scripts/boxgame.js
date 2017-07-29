@@ -57,6 +57,12 @@ function component(height,width,color,x,y) {
     this.setSpeedX = function(speedX) {
         this.speedX = speedX;
     }
+    this.incrementSpeedX = function(increment) {
+        this.speedX+=increment;
+    }
+    this.incrementSpeedY = function(increment) {
+        this.speedY+=increment;
+    }
     //sets speed to zero on both axes. also deals with accelupdate. messy.
     this.setSpeedZero = function() {
     clearInterval(this.accelUpdate);
@@ -74,20 +80,24 @@ function component(height,width,color,x,y) {
 //controlled by a bunch of different things. in html, can update game area thru buttons. here, using keyboard. can also use touch screen and mouse. 
 function updateGameArea() {
     myGameArea.clear();
-    //myBox.setSpeedX(0);
-    //myBox.setSpeedY(0);
+    myBox.setSpeedX(0);
+    myBox.setSpeedY(0);
     
     if(myGameArea.keys && myGameArea.keys[39]) {
-            myBox.setAccelX(4,50);
-          //myBox.setSpeedX(4); //makes box go right   
+            //myBox.incrementSpeedX(4);
+            //myBox.setAccelX(4,50);
+            myBox.setSpeedX(4); //makes box go right   
     }
     if(myGameArea.keys && myGameArea.keys[37]) {
+            //myBox.incrementSpeedX(-4);
             myBox.setSpeedX(-4); //makes box go left
     }
     if(myGameArea.keys && myGameArea.keys[38]) {
+            //myBox.incrementSpeedY(-4);
             myBox.setSpeedY(-4); //makes box go up
     }
     if(myGameArea.keys && myGameArea.keys[40]) {
+            //myBox.incrementSpeedY(4);
             myBox.setSpeedY(4); //makes box go down.
     }
     
