@@ -80,19 +80,13 @@ function component(height,width,color,x,y) {
 }
 //controlled by a bunch of different things. in html, can update game area thru buttons. here, using keyboard. can also use touch screen and mouse. 
 
-function colDetectWall(component) {
-    if((myBox.x+myBox.width)>=myGameArea.canvas.width && myBox.speedX>0) { 
-        myBox.setSpeedX(0); //stops box at right side
+function wallColDetect() {
+    if((myBox.x+myBox.width)>=myGameArea.canvas.width || myBox.x<=0 && myBox.speedX<0) { 
+        myBox.x-=myBox.speedX; //stops box at right side
     }
-    if(myBox.x<=0 && myBox.speedX<0) {
-        myBox.setSpeedX(0); //stops box at left side
-    }
-    if(myBox.y<=0 && myBox.speedY<0){
-        myBox.setSpeedY(0); //stops box at top side
+    if(myBox.y<=0 || myBox.y+myBox.height)>=myGameArea.canvas.height){
+        myBox.y-=myBox.speedY; //stops box at top side
     }  
-    if((myBox.y+myBox.height)>=myGameArea.canvas.height && myBox.speedY>0){
-        myBox.setSpeedY(0); //stops box at bottom side
-    }
 }
 
 function updateGameArea() {
@@ -117,7 +111,6 @@ function updateGameArea() {
             //myBox.incrementSpeedY(4);
             myBox.setSpeedY(4); //makes box go down.
     }
-    
     myBox.newPos();
     myBox.update();
     myObstacle.update();
