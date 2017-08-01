@@ -90,13 +90,15 @@ function wallColHandle(myComponent){
     }
 }
 
+//handles collision with components. Takes two components. 
 function componentColHandle(myComponent,myComponent2){
      if(componentColDetect(myComponent,myComponent2)) { 
             myComponent.x-=myComponent.speedX;
             myComponent.y-=myComponent.speedY;//stops box right and left
     }
-} 
+}
 
+//returns boolean if collision between components occurs
 function componentColDetect(myComponent,myComponent2){
      if(myComponent.x+myComponent.width>=myComponent2.x 
         && myComponent.y+myComponent.height>=myComponent2.y 
