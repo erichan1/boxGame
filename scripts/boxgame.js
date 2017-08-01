@@ -9,7 +9,7 @@ var myScore;
 function startGame() {
     myGameArea.start();
     myBox = new component(30,30,"red",10,120);
-    myObstacle = new component(30,30,"green",30,120);
+    myObstacle = new component(120,30,"green",120,90);
 }
 
 //creates the gamearea, which is a canvas.
@@ -20,7 +20,7 @@ var myGameArea = {
         this.canvas.height = 270;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval=setInterval(updateGameArea, 20); 
+        this.interval=setInterval(updateGameArea, 10); 
         
         window.addEventListener('keydown',function(e) {
             myGameArea.keys= (myGameArea.keys || [] );
@@ -80,14 +80,36 @@ function component(height,width,color,x,y) {
 }
 //controlled by a bunch of different things. in html, can update game area thru buttons. here, using keyboard. can also use touch screen and mouse. 
 
-function wallColDetect() {
-    if((myBox.x+myBox.width)>=myGameArea.canvas.width || myBox.x<=0 && myBox.speedX<0) { 
-        myBox.x-=myBox.speedX; //stops box at right side
+//handles collision with walls. Takes two components. 
+function wallColHandle(myComponent){
+    if(myComponent.x+myComponent.width>=myGameArea.canvas.width || myComponent.x<=0) { 
+        myComponent.x-=myComponent.speedX; //stops box right and left
     }
-    if(myBox.y<=0 || myBox.y+myBox.height)>=myGameArea.canvas.height){
-        myBox.y-=myBox.speedY; //stops box at top side
-    }  
+    if(myComponent.y<=0 || myComponent.y+myComponent.height>=myGameArea.canvas.height){
+        myComponent.y-=myComponent.speedY; //stops box top and bottom
+    }
 }
+
+function componentColHandle(myComponent,myComponent2){
+     if(componentColDetect(myComponent,myComponent2)) { 
+            myComponent.x-=myComponent.speedX;
+            myComponent.y-=myComponent.speedY;//stops box right and left
+    }
+} 
+
+function componentColDetect(myComponent,myComponent2){
+     if(myComponent.x+myComponent.width>=myComponent2.x 
+        && myComponent.y+myComponent.height>=myComponent2.y 
+        && myComponent.x<=myComponent2.x+myComponent2.width
+        && myComponent.y<=myComponent2.y+myComponent2.height) { 
+        return true;
+    }
+    else {
+        return false;
+    }
+} 
+     
+
 
 function updateGameArea() {
     myGameArea.clear();
@@ -97,23 +119,25 @@ function updateGameArea() {
     if(myGameArea.keys && myGameArea.keys[39]) {
             //myBox.incrementSpeedX(4);
             //myBox.setAccelX(4,50);
-            myBox.setSpeedX(4); //makes box go right   
+            myBox.setSpeedX(1); //makes box go right   
     }
     if(myGameArea.keys && myGameArea.keys[37]) {
             //myBox.incrementSpeedX(-4);
-            myBox.setSpeedX(-4); //makes box go left
+            myBox.setSpeedX(-1); //makes box go left
     }
     if(myGameArea.keys && myGameArea.keys[38]) {
             //myBox.incrementSpeedY(-4);
-            myBox.setSpeedY(-4); //makes box go up
+            myBox.setSpeedY(-1); //makes box go up
     }
     if(myGameArea.keys && myGameArea.keys[40]) {
             //myBox.incrementSpeedY(4);
-            myBox.setSpeedY(4); //makes box go down.
+            myBox.setSpeedY(1); //makes box go down.
     }
     myBox.newPos();
     myBox.update();
     myObstacle.update();
+    wallColHandle(myBox);
+    componentColHandle(myBox,myObstacle);
 }
 
 function print() {
