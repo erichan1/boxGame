@@ -2,6 +2,7 @@ Problems:
  - Interesting bug - If you make height or width of a component negative. componentColHandle fails to work. 
  - allow objects to skid for componentColHandle()
  - try to delete the obstacle after it goes off screen. right now I just add obstacles forever. 
+ - collision handling doesn't work with moving obstacles. currently works by reversing myBox speed. if myBox has no speed, no work.
  
  Git Problems:
  - Git question: after you commit changes does the local git basically become a backup? what's the command to use the local git to change the uncommited current git?

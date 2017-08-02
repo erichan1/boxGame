@@ -2,7 +2,6 @@
 
 var myBox; //equivalent to myGamePiece in the tutorial.
 var myObstacles;
-var myObstacle;
 var myWalls; 
 var myScore;
 
@@ -14,7 +13,6 @@ function startGame() {
                new component(myGameArea.canvas.height,5,"orange",0,0), //left wall
                new component(5,myGameArea.canvas.width,"orange",0,myGameArea.canvas.height-5), //bottom wall
                new component(myGameArea.canvas.height,5,"orange",myGameArea.canvas.width-5,0)]; //right wall
-    myObstacle = new component(120,30,"blue",120,90);
     myObstacles = [];
 }
 
@@ -167,6 +165,7 @@ function keyboard(myComponent) {
     }
 }
 
+//updates game area. interval shown in var myGameArea.
 function updateGameArea() {
     myGameArea.clear(); //clears game area
     
@@ -175,10 +174,12 @@ function updateGameArea() {
     keyboard(myBox); //sets speed according to keyboard
     
     if(numObstaclesOnScreen()<1){
-        myObstacles.push(new component(myGameArea.canvas.height-30,30,"green",myGameArea.canvas.width-30,0));
+        gapPos = getRandomBetween(60,myGameArea.canvas.height);
+        myObstacles.push(new component(myGameArea.canvas.height-gapPos,30,"green",myGameArea.canvas.width,0));
+        myObstacles.push(new component(myGameArea.canvas.height,30,"green",myGameArea.canvas.width,myGameArea.canvas.height-gapPos+60));
     }
     for(i=0;i<myObstacles.length;i++) {
-        myObstacles[i].setSpeedX(-4);
+        myObstacles[i].setSpeedX(-3);
         myObstacles[i].newPos();
         myObstacles[i].update();
     }
@@ -189,13 +190,16 @@ function updateGameArea() {
     
     myBox.newPos(); //shifts x and y based on speed.
     myBox.update(); //draws myBox in the changed x and y position
-    myObstacle.update(); //keeps the obstacle drawn
     
     for(i=0;i<myWalls.length;i++) {
         componentColHandle(myBox,myWalls[i]);
     }
     wallColHandle(myBox); //pushes myBox out of walls 
-    componentColHandle(myBox,myObstacle); //pushes myBox out of myObstacle
+    if(componentColDetect(myBox,myObstacles[myObstacles.length-1]) 
+       || componentColDetect(myBox,myObstacles[myObstacles.length-2])) {
+       window.alert('You lost!');
+       clearInterval(myGameArea.interval);
+    }
 }
 
 function print() {
