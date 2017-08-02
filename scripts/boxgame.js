@@ -2,14 +2,18 @@
 
 var myBox; //equivalent to myGamePiece in the tutorial.
 var myObstacles;
-var myObstacle;
+var myWalls; 
 var myScore;
 
-//starts the game. Calls start() function in myGameArea. Creates a new box. 
+//starts the game. Calls start() function in myGameArea. Creates a box, walls, obstacle, and obstacles.
 function startGame() {
     myGameArea.start();
     myBox = new component(30,30,"red",10,120);
-    myObstacle = new component(120,30,"green",120,90);
+    myWalls = [new component(5,myGameArea.canvas.width,"orange",0,0), //top wall
+               new component(myGameArea.canvas.height,5,"orange",0,0), //left wall
+               new component(5,myGameArea.canvas.width,"orange",0,myGameArea.canvas.height-5), //bottom wall
+               new component(myGameArea.canvas.height,5,"orange",myGameArea.canvas.width-5,0)]; //right wall
+    myObstacles = [];
 }
 
 //creates the gamearea, which is a canvas.
@@ -82,11 +86,21 @@ function component(height,width,color,x,y) {
 
 //handles collision with walls. Takes two components. 
 function wallColHandle(myComponent){
-    if(myComponent.x+myComponent.width>=myGameArea.canvas.width || myComponent.x<=0) { 
+    if(wallColDetect(myComponent)=='vertical') { 
         myComponent.x-=myComponent.speedX; //stops box right and left
     }
-    if(myComponent.y<=0 || myComponent.y+myComponent.height>=myGameArea.canvas.height){
+    if(wallColDetect(myComponent)=='horizontal'){
         myComponent.y-=myComponent.speedY; //stops box top and bottom
+    }
+}
+
+//detects collision with walls. returns string that indicates if it's the top/bottom or left/right walls. 
+function wallColDetect(myComponent){
+    if(myComponent.x+myComponent.width>=myGameArea.canvas.width || myComponent.x<=0) { 
+        return 'vertical'; //if collided with side walls, then this is returned.
+    }
+    if(myComponent.y<=0 || myComponent.y+myComponent.height>=myGameArea.canvas.height){
+        return 'horizontal'; //if collided with top or bottom, then this is returned.
     }
 }
 
@@ -109,37 +123,83 @@ function componentColDetect(myComponent,myComponent2){
     else {
         return false;
     }
-} 
-     
+}
 
+//checks how many obstacles are on screen. Goes through myObstacles array. 
+function numObstaclesOnScreen() {
+    var numOnScreen=0;
+    for(i=0;i<myObstacles.length;i++) {
+        if(componentColDetect(myObstacles[i],myWalls[0]) || componentColDetect(myObstacles[i],myWalls[2])) {
+            numOnScreen++;
+        }
+    }
+    return numOnScreen;
+}
 
-function updateGameArea() {
-    myGameArea.clear();
-    myBox.setSpeedX(0);
-    myBox.setSpeedY(0);
-    
+//returns random # between min and max. not sure if inclusive. 
+function getRandomBetween(min,max) {
+    return Math.random() * (max-min)+min;
+}
+
+/*
+interfaces the component with the keyboard. relies on window.addEventListener in myGameArea. 
+sets speed when keyboard is pressed
+*/ 
+function keyboard(myComponent) {
     if(myGameArea.keys && myGameArea.keys[39]) {
             //myBox.incrementSpeedX(4);
             //myBox.setAccelX(4,50);
-            myBox.setSpeedX(1); //makes box go right   
+            myComponent.setSpeedX(1); //makes box go right   
     }
     if(myGameArea.keys && myGameArea.keys[37]) {
             //myBox.incrementSpeedX(-4);
-            myBox.setSpeedX(-1); //makes box go left
+            myComponent.setSpeedX(-1); //makes box go left
     }
     if(myGameArea.keys && myGameArea.keys[38]) {
             //myBox.incrementSpeedY(-4);
-            myBox.setSpeedY(-1); //makes box go up
+            myComponent.setSpeedY(-1); //makes box go up
     }
     if(myGameArea.keys && myGameArea.keys[40]) {
             //myBox.incrementSpeedY(4);
-            myBox.setSpeedY(1); //makes box go down.
+            myComponent.setSpeedY(1); //makes box go down.
     }
-    myBox.newPos();
-    myBox.update();
-    myObstacle.update();
-    wallColHandle(myBox);
-    componentColHandle(myBox,myObstacle);
+}
+
+//updates game area. interval shown in var myGameArea.
+function updateGameArea() {
+    myGameArea.clear(); //clears game area
+    
+    myBox.setSpeedX(0); //sets speeds to 0
+    myBox.setSpeedY(0);
+    keyboard(myBox); //sets speed according to keyboard
+    
+    if(numObstaclesOnScreen()<1){
+        gapPos = getRandomBetween(60,myGameArea.canvas.height);
+        myObstacles.push(new component(myGameArea.canvas.height-gapPos,30,"green",myGameArea.canvas.width,0));
+        myObstacles.push(new component(myGameArea.canvas.height,30,"green",myGameArea.canvas.width,myGameArea.canvas.height-gapPos+60));
+    }
+    for(i=0;i<myObstacles.length;i++) {
+        myObstacles[i].setSpeedX(-3);
+        myObstacles[i].newPos();
+        myObstacles[i].update();
+    }
+    
+    for(i=0;i<myWalls.length;i++) {
+        myWalls[i].update();
+    }
+    
+    myBox.newPos(); //shifts x and y based on speed.
+    myBox.update(); //draws myBox in the changed x and y position
+    
+    for(i=0;i<myWalls.length;i++) {
+        componentColHandle(myBox,myWalls[i]);
+    }
+    wallColHandle(myBox); //pushes myBox out of walls 
+    if(componentColDetect(myBox,myObstacles[myObstacles.length-1]) 
+       || componentColDetect(myBox,myObstacles[myObstacles.length-2])) {
+       window.alert('You lost!');
+       clearInterval(myGameArea.interval);
+    }
 }
 
 function print() {
