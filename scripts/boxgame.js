@@ -3,13 +3,18 @@
 var myBox; //equivalent to myGamePiece in the tutorial.
 var myObstacles;
 var myObstacle;
+var myWalls; 
 var myScore;
 
-//starts the game. Calls start() function in myGameArea. Creates a new box. 
+//starts the game. Calls start() function in myGameArea. Creates a box, walls, obstacle, and obstacles.
 function startGame() {
     myGameArea.start();
     myBox = new component(30,30,"red",10,120);
-    myObstacle = new component(120,30,"green",120,90);
+    myWalls = [new component(5,myGameArea.canvas.width,"orange",0,0), //top wall
+               new component(myGameArea.canvas.height,5,"orange",0,0), //left wall
+               new component(5,myGameArea.canvas.width,"orange",0,myGameArea.canvas.height-5), //bottom wall
+               new component(myGameArea.canvas.height,5,"orange",myGameArea.canvas.width-5,0)]; //right wall
+    myObstacle = new component(120,30,"blue",120,90);
     myObstacles = [];
 }
 
@@ -126,18 +131,17 @@ function componentColDetect(myComponent,myComponent2){
 function numObstaclesOnScreen() {
     var numOnScreen=0;
     for(i=0;i<myObstacles.length;i++) {
-        if(wallColDetect(myObstacles[i])) {
+        if(componentColDetect(myObstacles[i],myWalls[0]) || componentColDetect(myObstacles[i],myWalls[2])) {
             numOnScreen++;
         }
     }
     return numOnScreen;
 }
 
-
+//returns random # between min and max. not sure if inclusive. 
 function getRandomBetween(min,max) {
     return Math.random() * (max-min)+min;
 }
-
 
 /*
 interfaces the component with the keyboard. relies on window.addEventListener in myGameArea. 
@@ -168,18 +172,28 @@ function updateGameArea() {
     
     myBox.setSpeedX(0); //sets speeds to 0
     myBox.setSpeedY(0);
-    
-    /*
-    if(numObstaclesOnScreen()<2){
-        myObstacles.push(new component(120,30,"green",120,90));
-    }
-    */
-    
     keyboard(myBox); //sets speed according to keyboard
+    
+    if(numObstaclesOnScreen()<1){
+        myObstacles.push(new component(myGameArea.canvas.height-30,30,"green",myGameArea.canvas.width-30,0));
+    }
+    for(i=0;i<myObstacles.length;i++) {
+        myObstacles[i].setSpeedX(-4);
+        myObstacles[i].newPos();
+        myObstacles[i].update();
+    }
+    
+    for(i=0;i<myWalls.length;i++) {
+        myWalls[i].update();
+    }
+    
     myBox.newPos(); //shifts x and y based on speed.
     myBox.update(); //draws myBox in the changed x and y position
     myObstacle.update(); //keeps the obstacle drawn
     
+    for(i=0;i<myWalls.length;i++) {
+        componentColHandle(myBox,myWalls[i]);
+    }
     wallColHandle(myBox); //pushes myBox out of walls 
     componentColHandle(myBox,myObstacle); //pushes myBox out of myObstacle
 }
