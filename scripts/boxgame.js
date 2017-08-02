@@ -10,6 +10,7 @@ function startGame() {
     myGameArea.start();
     myBox = new component(30,30,"red",10,120);
     myObstacle = new component(120,30,"green",120,90);
+    myObstacles = [];
 }
 
 //creates the gamearea, which is a canvas.
@@ -82,11 +83,21 @@ function component(height,width,color,x,y) {
 
 //handles collision with walls. Takes two components. 
 function wallColHandle(myComponent){
-    if(myComponent.x+myComponent.width>=myGameArea.canvas.width || myComponent.x<=0) { 
+    if(wallColDetect(myComponent)=='vertical') { 
         myComponent.x-=myComponent.speedX; //stops box right and left
     }
-    if(myComponent.y<=0 || myComponent.y+myComponent.height>=myGameArea.canvas.height){
+    if(wallColDetect(myComponent)=='horizontal'){
         myComponent.y-=myComponent.speedY; //stops box top and bottom
+    }
+}
+
+//detects collision with walls. returns string that indicates if it's the top/bottom or left/right walls. 
+function wallColDetect(myComponent){
+    if(myComponent.x+myComponent.width>=myGameArea.canvas.width || myComponent.x<=0) { 
+        return 'vertical'; //if collided with side walls, then this is returned.
+    }
+    if(myComponent.y<=0 || myComponent.y+myComponent.height>=myGameArea.canvas.height){
+        return 'horizontal'; //if collided with top or bottom, then this is returned.
     }
 }
 
@@ -109,37 +120,68 @@ function componentColDetect(myComponent,myComponent2){
     else {
         return false;
     }
-} 
-     
+}
+
+//checks how many obstacles are on screen. Goes through myObstacles array. 
+function numObstaclesOnScreen() {
+    var numOnScreen=0;
+    for(i=0;i<myObstacles.length;i++) {
+        if(wallColDetect(myObstacles[i])) {
+            numOnScreen++;
+        }
+    }
+    return numOnScreen;
+}
 
 
-function updateGameArea() {
-    myGameArea.clear();
-    myBox.setSpeedX(0);
-    myBox.setSpeedY(0);
-    
+function getRandomBetween(min,max) {
+    return Math.random() * (max-min)+min;
+}
+
+
+/*
+interfaces the component with the keyboard. relies on window.addEventListener in myGameArea. 
+sets speed when keyboard is pressed
+*/ 
+function keyboard(myComponent) {
     if(myGameArea.keys && myGameArea.keys[39]) {
             //myBox.incrementSpeedX(4);
             //myBox.setAccelX(4,50);
-            myBox.setSpeedX(1); //makes box go right   
+            myComponent.setSpeedX(1); //makes box go right   
     }
     if(myGameArea.keys && myGameArea.keys[37]) {
             //myBox.incrementSpeedX(-4);
-            myBox.setSpeedX(-1); //makes box go left
+            myComponent.setSpeedX(-1); //makes box go left
     }
     if(myGameArea.keys && myGameArea.keys[38]) {
             //myBox.incrementSpeedY(-4);
-            myBox.setSpeedY(-1); //makes box go up
+            myComponent.setSpeedY(-1); //makes box go up
     }
     if(myGameArea.keys && myGameArea.keys[40]) {
             //myBox.incrementSpeedY(4);
-            myBox.setSpeedY(1); //makes box go down.
+            myComponent.setSpeedY(1); //makes box go down.
     }
-    myBox.newPos();
-    myBox.update();
-    myObstacle.update();
-    wallColHandle(myBox);
-    componentColHandle(myBox,myObstacle);
+}
+
+function updateGameArea() {
+    myGameArea.clear(); //clears game area
+    
+    myBox.setSpeedX(0); //sets speeds to 0
+    myBox.setSpeedY(0);
+    
+    /*
+    if(numObstaclesOnScreen()<2){
+        myObstacles.push(new component(120,30,"green",120,90));
+    }
+    */
+    
+    keyboard(myBox); //sets speed according to keyboard
+    myBox.newPos(); //shifts x and y based on speed.
+    myBox.update(); //draws myBox in the changed x and y position
+    myObstacle.update(); //keeps the obstacle drawn
+    
+    wallColHandle(myBox); //pushes myBox out of walls 
+    componentColHandle(myBox,myObstacle); //pushes myBox out of myObstacle
 }
 
 function print() {
