@@ -4,10 +4,34 @@ var myBox; //equivalent to myGamePiece in the tutorial.
 var myObstacles;
 var myWalls; 
 var myScore;
+var interval;
+var intervaltwo;
+var time=0;
 
-//starts the game. Calls start() function in myGameArea. Creates a box, walls, obstacle, and obstacles.
+//makes a stopWatch.
+function stopWatch(initTime) {
+    this.interval;
+    this.time=initTime;
+    this.running=false;
+    
+    this.start = function() {
+        this.running=true;
+        interval = setInterval(time+=2,100); 
+        intervaltwo = setInterval(console.log(time),101);
+    }
+    this.increment = function(){
+        this.time+=2;
+        print(this.time);
+        console.log(this.time);
+    }
+}
+
+
+//MAIN: starts the game. Calls start() function in myGameArea. Creates a box, walls, obstacle, and obstacles.
 function startGame() {
     myGameArea.start();
+    myWatch = new stopWatch(0);
+    myWatch.start();
     myBox = new component(30,30,"red",10,120);
     myWalls = [new component(5,myGameArea.canvas.width,"orange",0,0), //top wall
                new component(myGameArea.canvas.height,5,"orange",0,0), //left wall
@@ -16,7 +40,7 @@ function startGame() {
     myObstacles = [];
 }
 
-//creates the gamearea, which is a canvas.
+//VAR: creates the gamearea, which is a canvas.
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
@@ -39,7 +63,7 @@ var myGameArea = {
     }
 }
 
-//constructor of objects(components) in canvas.
+//CLASS: constructor of objects(components) in canvas.
 function component(height,width,color,x,y) {
     this.width=width;
     this.height=height;
@@ -82,9 +106,8 @@ function component(height,width,color,x,y) {
         accelUpdate=setInterval(this.speedY+=yIncrement,time);
     }
 }
-//controlled by a bunch of different things. in html, can update game area thru buttons. here, using keyboard. can also use touch screen and mouse. 
 
-//handles collision with walls. Takes two components. 
+//STATIC METHOD: handles collision with walls. Takes two components. 
 function wallColHandle(myComponent){
     if(wallColDetect(myComponent)=='vertical') { 
         myComponent.x-=myComponent.speedX; //stops box right and left
@@ -94,7 +117,7 @@ function wallColHandle(myComponent){
     }
 }
 
-//detects collision with walls. returns string that indicates if it's the top/bottom or left/right walls. 
+//STATIC METHOD: detects collision with walls. returns string that indicates if it's the top/bottom or left/right walls. 
 function wallColDetect(myComponent){
     if(myComponent.x+myComponent.width>=myGameArea.canvas.width || myComponent.x<=0) { 
         return 'vertical'; //if collided with side walls, then this is returned.
@@ -104,7 +127,7 @@ function wallColDetect(myComponent){
     }
 }
 
-//handles collision with components. Takes two components. 
+//STATIC METHOD: handles collision with components. Takes two components. 
 function componentColHandle(myComponent,myComponent2){
      if(componentColDetect(myComponent,myComponent2)) { 
             myComponent.x-=myComponent.speedX;
@@ -112,7 +135,7 @@ function componentColHandle(myComponent,myComponent2){
     }
 }
 
-//returns boolean if collision between components occurs
+//STATIC METHOD: returns boolean if collision between components occurs
 function componentColDetect(myComponent,myComponent2){
      if(myComponent.x+myComponent.width>=myComponent2.x 
         && myComponent.y+myComponent.height>=myComponent2.y 
@@ -125,7 +148,7 @@ function componentColDetect(myComponent,myComponent2){
     }
 }
 
-//checks how many obstacles are on screen. Goes through myObstacles array. 
+//STATIC METHOD: checks how many obstacles are on screen. Goes through myObstacles array. 
 function numObstaclesOnScreen() {
     var numOnScreen=0;
     for(i=0;i<myObstacles.length;i++) {
@@ -136,12 +159,13 @@ function numObstaclesOnScreen() {
     return numOnScreen;
 }
 
-//returns random # between min and max. not sure if inclusive. 
+//STATIC METHOD: returns random # between min and max. not sure if inclusive. 
 function getRandomBetween(min,max) {
     return Math.random() * (max-min)+min;
 }
 
 /*
+STATIC METHOD: 
 interfaces the component with the keyboard. relies on window.addEventListener in myGameArea. 
 sets speed when keyboard is pressed
 */ 
@@ -165,7 +189,7 @@ function keyboard(myComponent) {
     }
 }
 
-//updates game area. interval shown in var myGameArea.
+//STATIC METHOD: updates game area. interval shown in var myGameArea.
 function updateGameArea() {
     myGameArea.clear(); //clears game area
     
@@ -202,8 +226,9 @@ function updateGameArea() {
     }
 }
 
-function print() {
-    return document.body.childNodes.length;
+//STATIC METHOD: alters the HTML element jsprintout with inputed string
+function print(string) {
+    document.getElementById("jsprintout").innerHTML = string;
 }
 
 
