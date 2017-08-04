@@ -16,22 +16,20 @@ function stopWatch(initTime) {
     
     this.start = function() {
         this.running=true;
-        interval = setInterval(time+=2,100); 
-        intervaltwo = setInterval(console.log(time),101);
+        setInterval(this.increment(),1000); 
     }
     this.increment = function(){
-        this.time+=2;
+        this.time+=1;
         print(this.time);
-        console.log(this.time);
     }
 }
 
 
-//MAIN: starts the game. Calls start() function in myGameArea. Creates a box, walls, obstacle, and obstacles.
+//MAIN: starts the game. Calls start() function in myGameArea. Creates a box, walls, and obstacles.
 function startGame() {
-    myGameArea.start();
     myWatch = new stopWatch(0);
     myWatch.start();
+    myGameArea.start();
     myBox = new component(30,30,"red",10,120);
     myWalls = [new component(5,myGameArea.canvas.width,"orange",0,0), //top wall
                new component(myGameArea.canvas.height,5,"orange",0,0), //left wall
