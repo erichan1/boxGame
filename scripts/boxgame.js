@@ -6,7 +6,7 @@ var myWalls;
 var myScore;
 var interval;
 var intervaltwo;
-var time=0;
+var wallsPassed=0; //var for wallsPassed.
 
 //makes a stopWatch.
 function stopWatch(initTime) {
@@ -199,6 +199,8 @@ function updateGameArea() {
         gapPos = getRandomBetween(60,myGameArea.canvas.height);
         myObstacles.push(new component(myGameArea.canvas.height-gapPos,30,"green",myGameArea.canvas.width,0));
         myObstacles.push(new component(myGameArea.canvas.height,30,"green",myGameArea.canvas.width,myGameArea.canvas.height-gapPos+60));
+        wallsPassed++;
+        print(wallsPassed);
     }
     for(i=0;i<myObstacles.length;i++) {
         myObstacles[i].setSpeedX(-3);
