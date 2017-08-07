@@ -6,7 +6,6 @@ var myWalls;
 var myScore;
 var interval;
 var intervaltwo;
-var wallsPassed=0; //var for wallsPassed.
 
 //makes a stopWatch.
 function stopWatch(initTime) {
@@ -16,7 +15,7 @@ function stopWatch(initTime) {
     
     this.start = function() {
         this.running=true;
-        setInterval(this.increment(),1000); 
+        this.interval = setInterval(this.increment(),1000);  
     }
     this.increment = function(){
         this.time+=1;
@@ -25,7 +24,7 @@ function stopWatch(initTime) {
 }
 
 
-//MAIN: starts the game. Calls start() function in myGameArea. Creates a box, walls, and obstacles.
+//MAIN: starts the game. Calls start() function in myGameArea. Creates a box, walls, stopwatch, and obstacles.
 function startGame() {
     myWatch = new stopWatch(0);
     myWatch.start();
@@ -69,7 +68,8 @@ function component(height,width,color,x,y) {
     this.y=y;
     this.speedX=0;
     this.speedY=0;
-    this.accelUpdate; //the variable used to update acceleration methods
+    this.accelUpdate;
+    this.wallsPassed = 0;//the variable used to update acceleration methods
     this.update = function() {
         ctx = myGameArea.context;
         ctx.fillStyle=color;
@@ -169,20 +169,15 @@ sets speed when keyboard is pressed
 */ 
 function keyboard(myComponent) {
     if(myGameArea.keys && myGameArea.keys[39]) {
-            //myBox.incrementSpeedX(4);
-            //myBox.setAccelX(4,50);
             myComponent.setSpeedX(1); //makes box go right   
     }
     if(myGameArea.keys && myGameArea.keys[37]) {
-            //myBox.incrementSpeedX(-4);
             myComponent.setSpeedX(-1); //makes box go left
     }
     if(myGameArea.keys && myGameArea.keys[38]) {
-            //myBox.incrementSpeedY(-4);
             myComponent.setSpeedY(-1); //makes box go up
     }
     if(myGameArea.keys && myGameArea.keys[40]) {
-            //myBox.incrementSpeedY(4);
             myComponent.setSpeedY(1); //makes box go down.
     }
 }
@@ -199,8 +194,8 @@ function updateGameArea() {
         gapPos = getRandomBetween(60,myGameArea.canvas.height);
         myObstacles.push(new component(myGameArea.canvas.height-gapPos,30,"green",myGameArea.canvas.width,0));
         myObstacles.push(new component(myGameArea.canvas.height,30,"green",myGameArea.canvas.width,myGameArea.canvas.height-gapPos+60));
-        wallsPassed++;
-        print(wallsPassed);
+        myBox.wallsPassed++;
+        //print(myBox.wallsPassed);
     }
     for(i=0;i<myObstacles.length;i++) {
         myObstacles[i].setSpeedX(-3);
