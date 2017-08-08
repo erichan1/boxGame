@@ -9,20 +9,21 @@ var intervaltwo;
 
 //makes a stopWatch.
 function stopWatch(initTime) {
+    var self = this;
     this.interval;
     this.time=initTime;
     this.running=false;
     
     this.start = function() {
         this.running=true;
-        this.interval = setInterval(this.increment(),1000);  
+        printOne("Time: " + this.time);
+        this.interval = setInterval(this.increment,1000);  
     }
     this.increment = function(){
-        this.time+=1;
-        print(this.time);
+        self.time+=1;
+        printOne("Time: " + self.time);
     }
 }
-
 
 //MAIN: starts the game. Calls start() function in myGameArea. Creates a box, walls, stopwatch, and obstacles.
 function startGame() {
@@ -195,7 +196,7 @@ function updateGameArea() {
         myObstacles.push(new component(myGameArea.canvas.height-gapPos,30,"green",myGameArea.canvas.width,0));
         myObstacles.push(new component(myGameArea.canvas.height,30,"green",myGameArea.canvas.width,myGameArea.canvas.height-gapPos+60));
         myBox.wallsPassed++;
-        //print(myBox.wallsPassed);
+        printTwo("Walls Passed: " + myBox.wallsPassed);
     }
     for(i=0;i<myObstacles.length;i++) {
         myObstacles[i].setSpeedX(-3);
@@ -218,12 +219,18 @@ function updateGameArea() {
        || componentColDetect(myBox,myObstacles[myObstacles.length-2])) {
        window.alert('You lost!');
        clearInterval(myGameArea.interval);
+       clearInterval(myWatch.interval);
     }
 }
 
-//STATIC METHOD: alters the HTML element jsprintout with inputed string
-function print(string) {
-    document.getElementById("jsprintout").innerHTML = string;
+//STATIC METHOD: alters the HTML element jsprintOne with inputed string
+function printOne(string) {
+    document.getElementById("jsprintOne").innerHTML = string;
+}
+
+//STATIC METHOD: alters the HTML element jsprintOne with inputed string
+function printTwo(string) {
+    document.getElementById("jsprintTwo").innerHTML = string;
 }
 
 

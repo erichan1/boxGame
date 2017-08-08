@@ -3,4 +3,3 @@ Problems:
  - allow objects to skid for componentColHandle()
  - try to delete the obstacle after it goes off screen. right now I just add obstacles forever. 
  - why is mygamearea a var?
- - why doesn't setInterval in stopwatch work???
