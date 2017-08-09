@@ -4,30 +4,44 @@ var myBox; //equivalent to myGamePiece in the tutorial.
 var myObstacles;
 var myWalls; 
 var myScore;
+var updateInterval = 10;
 var interval;
 var intervaltwo;
 
-//makes a stopWatch.
-function stopWatch(initTime) {
+//makes a stopWatch. sets time to zero. need to make sure that accuracy of time is good enough for the updateInterval.
+function stopWatch() {
     var self = this;
     this.interval;
-    this.time=initTime;
+    this.timeSec=0;
+    this.timeTenthSec=0;
+    this.timeHundredthSec=0;
     this.running=false;
     
     this.start = function() {
         this.running=true;
         printOne("Time: " + this.time);
-        this.interval = setInterval(this.increment,1000);  
+        this.interval = setInterval(this.increment,updateInterval);  
     }
     this.increment = function(){
-        self.time+=1;
-        printOne("Time: " + self.time);
+        self.timeHundredthSec+=1;
+        if(self.timeHundredthSec==10){
+            self.timeHundredthSec=0;
+            self.timeTenthSec+=1;
+        }
+        if(self.timeTenthSec==10) {
+            self.timeTenthSec=0;
+            self.timeSec+=1;
+        }
+        printOne("Time: " + self.getTime() + " sec");
+    }
+    this.getTime = function() {
+        return this.timeSec+ "." + this.timeTenthSec + "" + this.timeHundredthSec;
     }
 }
 
 //MAIN: starts the game. Calls start() function in myGameArea. Creates a box, walls, stopwatch, and obstacles.
 function startGame() {
-    myWatch = new stopWatch(0);
+    myWatch = new stopWatch();
     myWatch.start();
     myGameArea.start();
     myBox = new component(30,30,"red",10,120);
@@ -46,7 +60,7 @@ var myGameArea = {
         this.canvas.height = 270;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval=setInterval(updateGameArea, 10); 
+        this.interval=setInterval(updateGameArea, updateInterval); 
         
         window.addEventListener('keydown',function(e) {
             myGameArea.keys= (myGameArea.keys || [] );
@@ -103,6 +117,15 @@ function component(height,width,color,x,y) {
     }
     this.setAccelY = function(yIncrement,time) {
         accelUpdate=setInterval(this.speedY+=yIncrement,time);
+    }
+    //"destroys" the component. Still in memory, just is made into a point in top left corner. 
+    this.destroy=function() {
+        this.width=0;
+        this.height=0;
+        this.x=0;
+        this.y=0;
+        this.speedX=0;
+        this.speedY=0;
     }
 }
 
@@ -163,6 +186,11 @@ function getRandomBetween(min,max) {
     return Math.random() * (max-min)+min;
 }
 
+//STATIC METHOD: removes the element at "index" in "array"
+function remove(array, index) {
+    array.splice(index, 1);
+}
+
 /*
 STATIC METHOD: 
 interfaces the component with the keyboard. relies on window.addEventListener in myGameArea. 
@@ -186,18 +214,29 @@ function keyboard(myComponent) {
 //STATIC METHOD: updates game area. interval shown in var myGameArea.
 function updateGameArea() {
     myGameArea.clear(); //clears game area
+    printTwo("Walls Passed: " + myBox.wallsPassed);
     
     myBox.setSpeedX(0); //sets speeds to 0
     myBox.setSpeedY(0);
-    keyboard(myBox); //sets speed according to keyboard
     
-    if(numObstaclesOnScreen()<1){
+    
+    keyboard(myBox); //sets speed according to keyboard
+    printTwo("Walls Passed: " + myBox.wallsPassed);
+    
+    //Every "some #" of seconds, a new wall is made. still need to delete walls after they leave.
+    if(myWatch.getTime()==0.01 || myWatch.getTime()%3==0){
         gapPos = getRandomBetween(60,myGameArea.canvas.height);
         myObstacles.push(new component(myGameArea.canvas.height-gapPos,30,"green",myGameArea.canvas.width,0));
         myObstacles.push(new component(myGameArea.canvas.height,30,"green",myGameArea.canvas.width,myGameArea.canvas.height-gapPos+60));
         myBox.wallsPassed++;
-        printTwo("Walls Passed: " + myBox.wallsPassed);
     }
+    
+    //trying to remove obstacles from myObstacles. not really tho, just making it null. 
+    for(var i=0;i<myObstacles.length;i++) {
+        if(componentColDetect(myWalls[1],myObstacles[i])) {
+        }
+    }
+    
     for(i=0;i<myObstacles.length;i++) {
         myObstacles[i].setSpeedX(-3);
         myObstacles[i].newPos();
@@ -207,19 +246,18 @@ function updateGameArea() {
     for(i=0;i<myWalls.length;i++) {
         myWalls[i].update();
     }
-    
     myBox.newPos(); //shifts x and y based on speed.
     myBox.update(); //draws myBox in the changed x and y position
-    
     for(i=0;i<myWalls.length;i++) {
         componentColHandle(myBox,myWalls[i]);
     }
-    wallColHandle(myBox); //pushes myBox out of walls 
-    if(componentColDetect(myBox,myObstacles[myObstacles.length-1]) 
-       || componentColDetect(myBox,myObstacles[myObstacles.length-2])) {
-       window.alert('You lost!');
-       clearInterval(myGameArea.interval);
-       clearInterval(myWatch.interval);
+    //detects collision between myObstacles and myBox.
+    for(i=0;i<myObstacles.length;i++) {
+        if(componentColDetect(myBox,myObstacles[i])) {
+            window.alert('You lost!');
+            clearInterval(myGameArea.interval);
+            clearInterval(myWatch.interval);
+        }
     }
 }
 
