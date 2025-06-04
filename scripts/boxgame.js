@@ -113,16 +113,25 @@ function componentColHandle(myComponent,myComponent2){
 }
 
 //returns boolean if collision between components occurs
-function componentColDetect(myComponent,myComponent2){
-     if(myComponent.x+myComponent.width>=myComponent2.x 
-        && myComponent.y+myComponent.height>=myComponent2.y 
-        && myComponent.x<=myComponent2.x+myComponent2.width
-        && myComponent.y<=myComponent2.y+myComponent2.height) { 
-        return true;
-    }
-    else {
-        return false;
-    }
+function componentColDetect(myComponent, myComponent2){
+    const comp1 = {
+        left: Math.min(myComponent.x, myComponent.x + myComponent.width),
+        right: Math.max(myComponent.x, myComponent.x + myComponent.width),
+        top: Math.min(myComponent.y, myComponent.y + myComponent.height),
+        bottom: Math.max(myComponent.y, myComponent.y + myComponent.height)
+    };
+
+    const comp2 = {
+        left: Math.min(myComponent2.x, myComponent2.x + myComponent2.width),
+        right: Math.max(myComponent2.x, myComponent2.x + myComponent2.width),
+        top: Math.min(myComponent2.y, myComponent2.y + myComponent2.height),
+        bottom: Math.max(myComponent2.y, myComponent2.y + myComponent2.height)
+    };
+
+    return !(comp1.right < comp2.left ||
+             comp1.left > comp2.right ||
+             comp1.bottom < comp2.top ||
+             comp1.top > comp2.bottom);
 }
 
 //checks how many obstacles are on screen. Goes through myObstacles array. 
